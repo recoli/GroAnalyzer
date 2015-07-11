@@ -1,13 +1,15 @@
 CC=gcc
 CXX=g++
 CFLAGS=-O3 -Wall -lm -lgsl -lgslcblas
-OBJ=angle.o file.o vector.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-angle: $(OBJ)
+angle: angle.o file.o vector.o
+	g++ -o $@ $^ $(CFLAGS)
+
+op: op.o file.o vector.o
 	g++ -o $@ $^ $(CFLAGS)
 
 clean:  
-	rm -f angle *.o
+	rm -f angle op *.o
