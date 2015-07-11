@@ -11,5 +11,8 @@ angle: angle.o file.o vector.o
 op: op.o file.o vector.o
 	g++ -o $@ $^ $(CFLAGS)
 
+rotate: rotate.o elg.o file.o vector.o
+	g++ -o $@ $^ $(CFLAGS)
+
 clean:  
 	rm -f angle op *.o
