@@ -15,4 +15,4 @@ rotate: rotate.o elg.o file.o vector.o
 	g++ -o $@ $^ $(CFLAGS)
 
 clean:  
-	rm -f angle op *.o
+	rm -f angle op rotate *.o

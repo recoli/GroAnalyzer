@@ -15,32 +15,14 @@ using namespace std;
   
 int main()  
 {  
-	// histogram for the distribution of angles
-	int *hist = new int [361];
-	int maxbin = 360;
-	int count  = 0;
-	for (int bin = 0; bin <= maxbin; ++ bin)
-	{
-		hist[bin] = 0;
-	}
-
 	// pbc box
 	double *box = new double [DIM];
 
-	// number of atoms
-	long int nAtoms;
 
-	// get number of atoms
-	FILE *groFile;
-	groFile = fopen("traj.gro", "r") ;
-	if (NULL == groFile)
-	{
-		printf("Error: cannot open file traj.gro!\n");
-		exit(1);
-	}
+	// get number of atoms and frames
+	long int nAtoms, nFrames;
+	readNAtomsFrames("traj.gro", &nAtoms, &nFrames);
 
-	readNAtoms(groFile, &nAtoms);
-	fclose(groFile);
 
 	// read atomic mass
 	double *mass = new double [nAtoms];
@@ -60,20 +42,15 @@ int main()
 	}
 	fclose(massFile);
 
+
 	// read atomic information from gro file
 	Atom *atom = new Atom [nAtoms];
+
+	FILE *groFile;
 	groFile = fopen("traj.gro", "r") ;
-	long int nFrames = 2501;
 	for (long int frame = 0; frame < nFrames; ++ frame)
 	{
 		readGRO(groFile, nAtoms, atom, box);
-
-		/*
-		if (frame < 1500)
-		{
-			continue;
-		}
-		*/
 
 		// get number of molecules
 		// and number of atoms per molecule
@@ -95,13 +72,6 @@ int main()
 		}
 		nMols = nAtoms / apm;
 
-		/*
-		if (frame == nFrames - 1)
-		{
-			printf("#nAtoms=%ld, nMols=%ld, apm=%ld\n",
-					nAtoms, nMols, apm);
-		}
-		*/
 
 		// compute order parameter according to M.R.Wilson
 		// Journal of Molecular Liquids 68 (1996) 23-31

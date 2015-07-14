@@ -27,20 +27,11 @@ int main()
 	// pbc box
 	double *box = new double [DIM];
 
-	// number of atoms
-	long int nAtoms;
 
-	// get number of atoms
-	FILE *groFile;
-	groFile = fopen("traj.gro", "r") ;
-	if (NULL == groFile)
-	{
-		printf("Error: cannot open file traj.gro!\n");
-		exit(1);
-	}
+	// get number of atoms and frames
+	long int nAtoms, nFrames;
+	readNAtomsFrames("traj.gro", &nAtoms, &nFrames);
 
-	readNAtoms(groFile, &nAtoms);
-	fclose(groFile);
 
 	// read atomic mass
 	double *mass = new double [nAtoms];
@@ -60,15 +51,19 @@ int main()
 	}
 	fclose(massFile);
 
+
 	// read atomic information from gro file
 	Atom *atom = new Atom [nAtoms];
+
+	FILE *groFile;
 	groFile = fopen("traj.gro", "r") ;
-	long int nFrames = 2501;
+	//long int nFrames = 2501;
 	for (long int frame = 0; frame < nFrames; ++ frame)
 	{
 		readGRO(groFile, nAtoms, atom, box);
 
-		if (frame < 1500)
+		// only calculate distribution from the last 40% trajectory
+		if (frame < nFrames*3/5)
 		{
 			continue;
 		}
@@ -241,7 +236,6 @@ int main()
 				++ count;
 			}
 		}
-
 	}
 	fclose(groFile);
 

@@ -14,14 +14,51 @@ void substr(char *dest, const char *src,
    dest[cnt] = '\0';
 }
 
-// read number of atoms from gro file
-void readNAtoms(FILE *groFile, long int *pNAtoms)
+
+// read number of atoms and frames from gro file
+void readNAtomsFrames(const char *groFileName, long int *pNAtoms, long int *pNFrames)
 {
+	// variables
 	char line[MAX_STR_LEN];
-	fgets( line, sizeof( line ), groFile );
-	fgets( line, sizeof( line ), groFile );
-	sscanf(line, "%ld", pNAtoms);
+	long int nAtoms;
+
+	// open gro file
+	FILE *groFile;
+	groFile = fopen(groFileName, "r") ;
+	if (NULL == groFile)
+	{
+		printf("Error: cannot open file traj.gro!\n");
+		exit(1);
+	}
+
+	// count frames
+	long int nFrames = 0;
+	// first line: title
+	while (fgets(line, sizeof(line), groFile) != NULL)
+	{
+		// second line: number of atoms
+		fgets(line, sizeof(line), groFile);
+		sscanf(line, "%ld", &nAtoms);
+
+		// read atoms
+		for (long int i = 0; i < nAtoms; ++ i)
+		{
+			fgets(line, sizeof(line), groFile);
+		}
+
+		// read box
+		fgets(line, sizeof(line), groFile);
+
+		++ nFrames;
+	}
+
+	// close gro file
+	fclose(groFile);
+
+	*pNFrames = nFrames;
+	*pNAtoms  = nAtoms;
 }
+
 
 // read atomic information from gro file
 void readGRO(FILE *groFile, long int nAtoms, Atom *atom, double *box)

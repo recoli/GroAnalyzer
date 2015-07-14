@@ -17,8 +17,6 @@ using namespace std;
   
 int main()  
 {  
-	long int nAtoms;
-
 	double* avR = new double [MAXBIN];
 	double* avDens = new double [MAXBIN];
 	double* inv_dV = new double [MAXBIN];
@@ -53,17 +51,11 @@ int main()
 		exit(1);
 	}
 
-	// get number of atoms
-	FILE *groFile;
-	groFile = fopen("traj.gro", "r") ;
-	if (NULL == groFile)
-	{
-		printf("Error: cannot open file traj.gro!\n");
-		exit(1);
-	}
 
-	readNAtoms(groFile, &nAtoms);
-	fclose(groFile);
+	// get number of atoms and frames
+	long int nAtoms, nFrames;
+	readNAtomsFrames("traj.gro", &nAtoms, &nFrames);
+
 
 	// read atomic mass
 	double *mass = new double [nAtoms];
@@ -82,8 +74,11 @@ int main()
 	}
 	fclose(massFile);
 
+
 	// read atomic information from gro file
 	Atom *atom = new Atom [nAtoms];
+
+	FILE *groFile;
 	groFile = fopen("traj.gro", "r") ;
 	if (NULL == groFile)
 	{
@@ -91,7 +86,6 @@ int main()
 		exit(1);
 	}
 
-	long int nFrames = 2501;
 	for (long int frame=0; frame < nFrames; frame ++)
 	{
 		readGRO(groFile, nAtoms, atom, box);
@@ -300,7 +294,8 @@ int main()
 		fprintf(lenFile, "%ld %f %f %f\n", frame, xmax-xmin, xmin, xmax);
 
 		// radial density
-		if(frame >= 1500)
+		// only calculate from the last 40% trajectory
+		if(frame >= nFrames*3/5)
 		{
 			for (long int i=0; i < nAtoms; i++)
 			{
